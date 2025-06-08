@@ -6,7 +6,7 @@ workflows:
 
     environment:
       vars:
-        XCODE_WORKSPACE: 'doan.xcworkspace' # Tên workspace của bạn
+        XCODE_WORKSPACE: 'ios/doan.xcworkspace' # Tên workspace của bạn
         XCODE_SCHEME: 'doan' # Tên scheme của bạn
         BUNDLE_ID: 'org.reactjs.native.example.doan' # Bundle ID của ứng dụng
       node: 18 # Phiên bản Node.js bạn sử dụng
@@ -27,8 +27,13 @@ workflows:
 
       - name: Install CocoaPods dependencies
         script: |
+          set -e # Exit immediately if a command exits with a non-zero status.
+          set -x # Print commands and their arguments as they are executed.
           cd ios
-          pod install
+          rm -rf Pods/ Podfile.lock # Clean up previous Pods and lock file
+          pod repo update # Update CocoaPods master repo
+          pod install --repo-update # Install pods and update repo if needed
+          ls -la # List contents of ios directory to confirm .xcworkspace creation
 
       - name: Set up code signing
         script: |
@@ -37,11 +42,13 @@ workflows:
 
       - name: Build iOS App
         script: |
-          xcodebuild -workspace $XCODE_WORKSPACE -scheme $XCODE_SCHEME -configuration Release -sdk iphoneos archive -archivePath build/ios/Runner.xcarchive DEVELOPMENT_TEAM=xnrn8shps4
+          cd ios
+          xcodebuild -workspace doan.xcworkspace -scheme $XCODE_SCHEME -configuration Release -sdk iphoneos archive -archivePath build/Runner.xcarchive DEVELOPMENT_TEAM=xnrn8shps4
 
       - name: Export IPA
         script: |
-          xcodebuild -exportArchive -archivePath build/ios/Runner.xcarchive -exportOptionsPlist ios/exportOptions.plist -exportPath build/ios
+          cd ios
+          xcodebuild -exportArchive -archivePath build/Runner.xcarchive -exportOptionsPlist exportOptions.plist -exportPath build
 
     artifacts:
       - build/ios/*.ipa

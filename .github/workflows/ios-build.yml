@@ -26,7 +26,7 @@ jobs:
     - name: Build iOS app
       run: |
         cd ios
-        xcodebuild -workspace doan.xcworkspace -scheme doan -configuration Release -sdk iphoneos -archivePath doan.xcarchive archive CODE_SIGN_IDENTITY="Apple Development" DEVELOPMENT_TEAM="xnrn8shps4"
+        xcodebuild -workspace doan.xcworkspace -scheme doan -configuration Release -sdk iphoneos -archivePath doan.xcarchive archive CODE_SIGN_IDENTITY="Apple Development" DEVELOPMENT_TEAM="xnrn8shps4" -allowProvisioningUpdates
 
     - name: Export IPA
       run: |

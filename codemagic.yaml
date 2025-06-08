@@ -48,13 +48,8 @@ workflows:
       - build/ios/Runner.xcarchive # Tùy chọn: lưu trữ archive để debug sau
 
     publishing:
-      # Bạn có thể cấu hình các dịch vụ phân phối tại đây (ví dụ: TestFlight, App Store Connect)
-      # Xem tài liệu Codemagic để biết thêm: https://docs.codemagic.io/yaml/publishing/
       email:
         recipients:
           - nguyendoanh55555@gmail.com
-        notify_on_success: true
-        notify_on_failure: false
-        # Bạn có thể thêm điều kiện gửi email chỉ khi build thành công hoặc thất bại
-        # success: true
-        # failure: false 
+      # Bạn có thể cấu hình các dịch vụ phân phối tại đây (ví dụ: TestFlight, App Store Connect)
+      # Xem tài liệu Codemagic để biết thêm: https://docs.codemagic.io/yaml/publishing/ 

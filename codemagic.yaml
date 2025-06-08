@@ -1,0 +1,58 @@
+workflows:
+  ios-build:
+    name: iOS Build and Distribution
+    instance_type: mac_mini_m1
+    max_build_duration: 120 # minutes
+
+    environment:
+      vars:
+        XCODE_WORKSPACE: 'doan.xcworkspace' # Tên workspace của bạn
+        XCODE_SCHEME: 'doan' # Tên scheme của bạn
+        BUNDLE_ID: 'org.reactjs.native.example.doan' # Bundle ID của ứng dụng
+      node: 18 # Phiên bản Node.js bạn sử dụng
+      xcode: 15.3 # Phiên bản Xcode bạn muốn sử dụng
+
+    triggering:
+      events:
+        - push
+        - pull_request
+      branch_patterns:
+        - pattern: main
+          include: true
+
+    scripts:
+      - name: Install npm dependencies
+        script: |
+          npm install
+
+      - name: Install CocoaPods dependencies
+        script: |
+          cd ios
+          pod install
+
+      - name: Set up code signing
+        script: |
+          # Codemagic sẽ tự động sử dụng provisioning profiles và certificates đã tải lên
+          # Không cần lệnh thủ công nếu đã cấu hình trong UI
+
+      - name: Build iOS App
+        script: |
+          xcodebuild -workspace $XCODE_WORKSPACE -scheme $XCODE_SCHEME -configuration Release -sdk iphoneos archive -archivePath build/ios/Runner.xcarchive DEVELOPMENT_TEAM=xnrn8shps4
+
+      - name: Export IPA
+        script: |
+          xcodebuild -exportArchive -archivePath build/ios/Runner.xcarchive -exportOptionsPlist ios/exportOptions.plist -exportPath build/ios
+
+    artifacts:
+      - build/ios/*.ipa
+      - build/ios/Runner.xcarchive # Tùy chọn: lưu trữ archive để debug sau
+
+    publishing:
+      # Bạn có thể cấu hình các dịch vụ phân phối tại đây (ví dụ: TestFlight, App Store Connect)
+      # Xem tài liệu Codemagic để biết thêm: https://docs.codemagic.io/yaml/publishing/
+      email:
+        recipients:
+          - nguyendoanh55555@gmail.com
+        # Bạn có thể thêm điều kiện gửi email chỉ khi build thành công hoặc thất bại
+        success: true
+        failure: false 

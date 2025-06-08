@@ -17,6 +17,15 @@ jobs:
       with:
         node-version: '18'
 
+    - name: Login to Apple ID
+      env:
+        APPLE_ID: ${{ nguyendoanh55555@gmail.com }}
+        APPLE_PASSWORD: ${{ Honda123. }}
+      run: |
+        echo "$APPLE_PASSWORD" | xcrun altool --username "$APPLE_ID" --password-stdin
+        # Optional: Add a short delay to ensure account is fully logged in
+        sleep 5
+
     - name: Install dependencies
       run: |
         npm install

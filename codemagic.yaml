@@ -53,6 +53,8 @@ workflows:
       email:
         recipients:
           - nguyendoanh55555@gmail.com
+        notify_on_success: true
+        notify_on_failure: false
         # Bạn có thể thêm điều kiện gửi email chỉ khi build thành công hoặc thất bại
-        success: true
-        failure: false 
+        # success: true
+        # failure: false 

@@ -1,109 +1,63 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, ScrollView, Image } from 'react-native';
 import { Text, Button } from 'react-native-paper';
-import firestore from '@react-native-firebase/firestore'; // Import Firebase
+import axios from 'axios';
+import API_CONFIG from '../api';
 
 const OrderDetail = ({ route, navigation }) => {
-    const { orderId } = route.params; // Thay đổi từ order sang orderId
-    const [orderData, setOrderData] = useState(null);
+    const { id } = route.params; // Lấy id sản phẩm
+    const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchOrderData = async () => {
+        const fetchProduct = async () => {
             try {
-                const orderDoc = await firestore()
-                    .collection('Appointments')
-                    .where('id', '==', orderId)
-                    .get();
-
-                if (!orderDoc.empty) {
-                    setOrderData(orderDoc.docs[0].data());
-                } else {
-                    console.log("Không tìm thấy đơn hàng");
-                }
+                // Gọi API lấy chi tiết sản phẩm
+                const response = await axios.get(`${API_CONFIG.BASE_URL}/api/products/${id}`);
+                // Tùy vào cấu trúc API, có thể là response.data.data hoặc response.data
+                setProduct(response.data.data || response.data);
+                console.log('Chi tiết sản phẩm:', response.data.data || response.data);
             } catch (error) {
-                console.error("Lỗi khi lấy dữ liệu đơn hàng: ", error);
+                console.error("Lỗi khi lấy dữ liệu sản phẩm: ", error);
+            } finally {
+                setLoading(false);
             }
         };
 
-        fetchOrderData();
-    }, [orderId]);
+        fetchProduct();
+    }, [id]);
 
-    //ham hien thi gia tien
+    // Hàm hiển thị giá tiền
     const formatPrice = (price) => {
-        return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        if (!price) return '0';
+        const num = typeof price === 'string' ? parseFloat(price) : price;
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     };
+
     return (
         <ScrollView style={styles.container}>
             <View style={styles.card}>
-                <Text style={styles.title}>Trạng thái đơn hàng</Text>
-                {orderData ? (
-                    <View style={styles.orderDetails}>
-                        <View style={styles.statusBadge}>
-                            <Text style={styles.statusText}>
-                                {orderData.state === 'new' ? 'Đang duyệt' : 
-                                orderData.state === 'complete' ? 'Đã hoàn thành' :
-                                orderData.state === 'delivery' ? 'Đang chờ giao hàng' :  
-                                orderData.state}
-                            </Text>
-                        </View>
-                        
-                        <View style={styles.infoSection}>
-                            <View style={styles.infoRow}>
-                                <Text style={styles.label}>Thời gian:</Text>
-                                <Text style={styles.value}>
-                                    {orderData.datetime ? orderData.datetime.toDate().toLocaleString() : 'Không xác định'}
-                                </Text>
-                            </View>
-                            
-                            <View style={styles.divider} />
-
-                            <View style={styles.infoRow}>
-                                <Text style={styles.label}>Trạng thái thanh toán:</Text>
-                                <Text style={[
-                                    styles.value,
-                                    {color: orderData.appointment === 'paid' ? '#4CAF50' : '#FF5722'}
-                                ]}>
-                                    {orderData.appointment === 'paid' ? 'Đã thanh toán' : 
-                                     orderData.appointment === 'online' ? 'Chờ thanh toán online' : 
-                                     'Thanh toán khi nhận hàng'}
-                                </Text>
-                            </View>
-                        </View>
-
-                        <View style={styles.servicesCard}>
-                            <Text style={styles.sectionTitle}>Chi tiết sản phẩm</Text>
-                            {Array.isArray(orderData.services) && orderData.services.map((service, index) => (
-                                <View key={index} style={styles.serviceItem}>
-                                    <View style={styles.serviceRow}>
-                                        <View style={styles.serviceInfo}>
-                                            <Text style={styles.serviceName}>{service.title}</Text>
-                                            <Text style={styles.quantity}>x{service.quantity}</Text>
-                                        </View>
-                                        <Text style={styles.servicePrice}>{formatPrice(service.price)} vnđ</Text>
-                                    </View>
-                                    {index !== orderData.services.length - 1 && <View style={styles.itemDivider} />}
-                                </View>
-                            ))}
-                        </View>
-
-                        <View style={styles.totalSection}>
-                            <Text style={styles.totalLabel}>Tổng tiền</Text>
-                            <Text style={styles.totalAmount}>{formatPrice(orderData.totalPrice)} vnđ</Text>
-                        </View>
-
-                        {orderData.appointment !== 'paid' && (
-                            <Button 
-                                mode="contained" 
-                                onPress={() => navigation.navigate("PaymentZalo", { orderId: orderId })}
-                                style={[styles.paymentButton, { backgroundColor: '#0068FF' }]}
-                                labelStyle={styles.buttonLabel}
-                            >
-                                Thanh toán Online
-                            </Button>
+                <Text style={styles.title}>Chi tiết sản phẩm</Text>
+                {loading ? (
+                    <ActivityIndicator size="large" color="#6200ee" />
+                ) : product ? (
+                    <View>
+                        {product.image_url && (
+                            <Image
+                                source={{ uri: product.image_url.startsWith('http') ? product.image_url : `${API_CONFIG.BASE_URL}/${product.image_url}` }}
+                                style={{ width: 200, height: 200, alignSelf: 'center', marginBottom: 16 }}
+                            />
                         )}
+                        <Text style={styles.label}>Tên sản phẩm:</Text>
+                        <Text style={styles.value}>{product.name}</Text>
+                        <Text style={styles.label}>Giá:</Text>
+                        <Text style={styles.value}>{formatPrice(product.sale_price)} đ</Text>
+                        <Text style={styles.label}>Mô tả:</Text>
+                        <Text style={styles.value}>{product.description}</Text>
+                        {/* Thêm các trường khác nếu cần */}
                     </View>
                 ) : (
-                    <ActivityIndicator size="large" color="#6200ee" />
+                    <Text>Không tìm thấy sản phẩm</Text>
                 )}
             </View>
         </ScrollView>

@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import ServicesCustomer from '../screens/ServicesCustomer';
 import { useMyContextProvider } from "../index";
-import Appointment from "../screens/Appointment";
+import ProductDetail from "../screens/ProductDetail";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Image, Text, TextInput} from "react-native";
-
+import PostDetail from "../screens/PostDetail";
 const Stack = createStackNavigator();
 
 const RouterServiceCustomer = ({ navigation }) => {
@@ -39,14 +39,16 @@ const RouterServiceCustomer = ({ navigation }) => {
             />
             
             <Stack.Screen 
-            name="Appointment" 
-            component={Appointment} 
+            name="ProductDetail" 
+            component={ProductDetail} 
             options={{
-                title: "Đặt hàng",
-                headerRight: null,
-                headerStyle: {
-                    backgroundColor: "white"
-                },
+                headerShown: false
+            }}/>
+            <Stack.Screen 
+            name="PostDetail" 
+            component={PostDetail} 
+            options={{
+                headerShown: false
             }}/>
             
         </Stack.Navigator>

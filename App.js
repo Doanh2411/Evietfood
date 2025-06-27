@@ -6,7 +6,27 @@ import { MyContextControllerProvider } from './index';
 import Router from './routers/Router';
 import { MenuProvider } from 'react-native-popup-menu';
 import { CartProvider } from './routers/CartContext';
-import { LogBox } from 'react-native';
+import { LogBox, Text, TextInput } from 'react-native';
+
+// --- Global Font Configuration ---
+// The following code overrides the default render method for Text and TextInput
+// to apply "Roboto" as the default font family.
+const defaultFontFamily = { fontFamily: 'Roboto' };
+const oldTextRender = Text.render;
+Text.render = function (...args) {
+    const origin = oldTextRender.call(this, ...args);
+    return React.cloneElement(origin, {
+        style: [defaultFontFamily, origin.props.style]
+    });
+};
+const oldTextInputRender = TextInput.render;
+TextInput.render = function (...args) {
+    const origin = oldTextInputRender.call(this, ...args);
+    return React.cloneElement(origin, {
+        style: [defaultFontFamily, origin.props.style]
+    });
+};
+// --- End Global Font Configuration ---
 
 // Vô hiệu hóa tất cả cảnh báo console
 LogBox.ignoreLogs(['Warning: ...']); // Bỏ qua log cụ thể

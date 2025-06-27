@@ -43,14 +43,14 @@ const ProfileCustomer = ({ navigation }) => {
             </View>
             <View style={styles.avatarAbsoluteWrapper}>
                 <View style={styles.avatarBox}>
-                    <Text style={styles.avatarText}>AVT</Text>
+                    <Image source={require('../assets/canhcut.jpg')} style={{width: 90, height: 90, borderRadius: 20}} />
                 </View>
             </View>
             <View style={styles.profileCard}>
                 <Text style={styles.inputLabel}>Tên</Text>
                 <TextInput
                     style={styles.input}
-                    value={user.fullName || ''}
+                    value={"Mr Van"}
                     editable={false}
                 />
                 <Text style={styles.inputLabel}>Số điện thoại</Text>

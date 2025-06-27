@@ -1,0 +1,40 @@
+name: iOS Build
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: |
+        npm install
+        cd ios
+        pod install
+
+    - name: Build iOS app
+      run: |
+        cd ios
+        xcodebuild -workspace doan.xcworkspace -scheme doan -configuration Release -sdk iphoneos -archivePath doan.xcarchive archive
+
+    - name: Export IPA
+      run: |
+        cd ios
+        xcodebuild -exportArchive -archivePath doan.xcarchive -exportOptionsPlist exportOptions.plist -exportPath ./build
+
+    - name: Upload IPA
+      uses: actions/upload-artifact@v3
+      with:
+        name: ios-app
+        path: ios/build/*.ipa 

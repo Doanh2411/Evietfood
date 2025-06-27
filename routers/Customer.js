@@ -5,6 +5,7 @@ import RouterServiceCustomer from "./RouterServiceCustomer";
 import RouterCart from "./RouterCart";
 import { Image } from "react-native";
 import Cart from "../screens/Cart";
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
 import RouterProfile from "./RouterProfile";
 import RouterAppointment from "./RouterAppointment";
@@ -23,17 +24,24 @@ import Map from "../screens/Map";
           tabBarActiveTintColor: '#fff',
           tabBarInactiveTintColor: '#fff',
           tabBarActiveTintColor: 'orange',
-          tabBarStyle: { backgroundColor: 'red', height: 65 },
+          tabBarStyle: { backgroundColor: '#EF2A39', height: 65 },
           tabBarPressColor: 'transparent',
+          headerShown: false,
+          tabBarShowLabel: false,
         }}
         
       >
         <Tab.Screen
           name="RouterServiceCustomer"
           component={RouterServiceCustomer}
-          options={{
-            headerShown: false,
-            tabBarLabel: "",
+          options={({ route }) => ({
+            tabBarStyle: ((route) => {
+              const routeName = getFocusedRouteNameFromRoute(route) ?? ""
+              if (routeName === 'PostDetail' || routeName === 'ProductDetail') {
+                return { display: "none" }
+              }
+              return { backgroundColor: '#EF2A39', height: 65 }
+            })(route),
             tabBarIcon: ({ color }) => (
               <>
               <Image
@@ -44,7 +52,7 @@ import Map from "../screens/Map";
               </>
             ),
             
-          }}
+          })}
         />
         <Tab.Screen
           name="RouterCart"
